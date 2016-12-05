@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="android, java"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="/smjro.github.io/favicon.png">
+    <title>Androidでオセロゲームを作ってみる（描画編）</title>
+    <meta name="description" content="Androidアプリ（オセロ）の作成を通して、javaの勉強をしていきます。">
+    <link rel="canonical" href="http://localhost:4000/smjro.github.io/programming/2016/12/05/Android%E3%81%A7%E3%82%AA%E3%82%BB%E3%83%AD%E3%82%B2%E3%83%BC%E3%83%A0%E3%82%92%E4%BD%9C%E3%81%A3%E3%81%A6%E3%81%BF%E3%82%8B.html" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/material-design-icons/3.0.1/iconfont/material-icons.min.css" rel="stylesheet"/>
+    <!-- <link href="/smjro.github.io/stylesheets/materialize.min.css" rel="stylesheet"/> -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/css/materialize.min.css" rel="stylesheet"  />
+    <link rel="stylesheet" href="/smjro.github.io/css/main.css">
+    
+    <link rel="stylesheet" href="/smjro.github.io/css/prism.css">
+    
+    <link rel="alternate" type="application/rss+xml" title="smjroの備忘録" href="/smjro.github.io/feed.xml" />
+</head>
+
+<body>
+<header>
+  <nav>
+    <div class="nav-wrapper teal grey darken-4">
+    <div class="nav-wrapper">
+      <div class="container"><a href="#" data-activates="nav-bar" class="button-collapse"><i class="material-icons">menu</i></a></div>
+      <ul class="right hide-on-med-and-down ">
+        
+        <li><a href="/smjro.github.io/">Home</a></li>
+        
+        <li><a href="/smjro.github.io/categories.html">Categories</a></li>
+        
+        <li><a href="/smjro.github.io/tags.html">Tags</a></li>
+        
+      </ul>
+      <ul class="side-nav" id="nav-bar">
+        
+        <li><a href="/smjro.github.io/">Home</a></li>
+        
+        <li><a href="/smjro.github.io/categories.html">Categories</a></li>
+        
+        <li><a href="/smjro.github.io/tags.html">Tags</a></li>
+        
+      </ul>
+    </div>
+  </nav>
+</header>
+
+<br/>
+<main>
+    <div class="container">
+        <!--  -->
+<div class="row">
+  <h2>Androidでオセロゲームを作ってみる（描画編）</h2>
+  <div class="valign-wrapper">
+    <!-- <div class="author"><img src="/smjro.github.io/img/author.png" class="circle responsive-img">
+    </div> -->
+    
+    <h5><a href="/smjro.github.io/categories/programming">programming</a> - 12/05/2016
+    </h5>
+  </div>
+  
+  
+  <a href="/smjro.github.io/tags/android"><div class="chip waves-effect waves-red">android</div></a>
+  
+  
+  
+  <a href="/smjro.github.io/tags/java"><div class="chip waves-effect waves-red">java</div></a>
+  
+  
+</div>
+<div class="row">
+  <p>Androidアプリ（オセロ）の作成を通して、javaの勉強をしていきます。</p>
+
+<p>第一回目は描画編ということで、次の様な描画の仕方を説明します。</p>
+
+<p><img src="/smjro.github.io/img/reversi/reversi_view.png" width="200px" /></p>
+
+<h4 id="section">目次</h4>
+<hr />
+<ul>
+  <li>● <a href="#section">目次</a></li>
+  <li>● <a href="#section-1">はじめに</a></li>
+  <li>● <a href="#activity">Activityのライフサイクル</a></li>
+  <li>● <a href="#ondraw">onDraw</a></li>
+  <li>● <a href="#section-2">画像の読み込み</a></li>
+  <li>● <a href="#canvas">Canvas</a></li>
+  <li>● <a href="#section-3">おわりに</a></li>
+  <li>● <a href="#section-4">参照</a></li>
+</ul>
+
+<h4 id="section-1">はじめに</h4>
+<hr />
+<p>描画処理について説明する前に、Androidのアプリの仕組みについて簡単に説明します。<br />
+詳細は割愛しますので、下記のサイト等を参考にしてください。<br />
+また、記事中のソースコードは説明用に不必要な部分を取り除いた形
+になっているので詳しくは<a href="https://github.com/smjro/Reversi">Github</a>を確認してください。</p>
+
+<h4 id="activity">Activityのライフサイクル</h4>
+<hr />
+<p>Androidでは、アプリケーションが起動されると最初のActivityが開始し、画面に表示されます。<br />
+Activity（画面）は別のActivityによって隠されたることもあります。<br />
+（ゲーム中に電話が掛かってきたりだとか）<br />
+このようなActivityの開始から破棄されるまでの一連の流れを<br />
+Activityのライフサイクルと呼んでいます。</p>
+
+<p>次の図はライフサイクルを表したものです。</p>
+
+<p><img src="/smjro.github.io/img/reversi/life_cycle.jpg" width="400px" /></p>
+
+<p>参考</p>
+
+<p><a href="http://www.javadrive.jp/android/activity/index2.html">アクティビティのライフサイクル - Android入門</a></p>
+
+<h4 id="ondraw">onDraw()</h4>
+<hr />
+<p>描画処理はアプリ起動後すぐに行いたいので、図中の<code class="highlighter-rouge">onCreate()</code>  内部で行います。<br />
+以下、ビューとViewが出てきますが、</p>
+
+<ul>
+  <li>● ビュー：画面に表示されるテキストやボタン</li>
+  <li>● View：Viewクラス</li>
+</ul>
+
+<p>をそれぞれ表していることに注意してください。</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">// MainActivity.java</span>
+<span class="nd">@Override</span>
+<span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span>
+	<span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">(</span><span class="n">savedInstanceState</span><span class="o">);</span>
+	<span class="n">mReversiView</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ReversiView</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+	<span class="c1">// 内部クラス（カスタムビュー）を</span>
+	<span class="c1">// レイアウトとして設定する</span>
+	<span class="n">setContentView</span><span class="o">(</span><span class="n">mReversiView</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+<p><code class="red-text">setContentView()</code>にレイアウトファイルを読み込むことで描画できます。<br />
+デフォルトでは<code class="red-text">setContentView(R.layout.main)</code>となっており、<br />
+res/layout/main.xmlで定義されたビューを読み込むようになっています。<br />
+今回は、Viewクラスのサブクラスを内部クラス（ReversiView）として作成し、読み込ませています。<br />
+描画の詳細な処理は<code class="red-text">ReversiView.java</code>内部の<code class="red-text">onDraw()</code>で記述しています。</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">// ReversiView.java</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ReversiView</span> <span class="kd">extends</span> <span class="n">View</span> <span class="o">{</span>
+
+	<span class="c1">// コンストラクタ</span>
+	<span class="kd">public</span> <span class="nf">ReversiView</span><span class="o">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+		<span class="kd">super</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
+		<span class="cm">/*** 初期化処理 ***/</span>
+	<span class="o">}</span>
+
+	<span class="nd">@Override</span>
+	<span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onDraw</span><span class="o">(</span><span class="n">Canvas</span> <span class="n">canvas</span><span class="o">)</span> <span class="o">{</span>
+		<span class="cm">/*** 描画処理 ***/</span>
+	<span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>参考</p>
+
+<p><a href="http://www.javadrive.jp/android/activity/index4.html">ビューとビューグループ - Android入門</a><br />
+<a href="https://allabout.co.jp/gm/gc/80740/">グラフィックを描こう！</a></p>
+
+<h4 id="section-2">画像の読み込み</h4>
+<hr />
+<p>画像（Bitmap）を描画するには、描画する画像と座標を指定します。<br />
+画像リソースの読み込みは、</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">Bitmap</span> <span class="n">BitmapFactory</span><span class="o">.</span><span class="na">decodeResource</span><span class="o">(</span><span class="n">Resources</span> <span class="n">r</span><span class="o">,</span> <span class="kt">int</span> <span class="n">resourcesID</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<p>を用います。
+尚、読み込む画像は<code class="red-text">res/drawable</code>ディレクトリに置いてください。<br />
+次に、読み込んだ画像の描画は、</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">drawBitmap</span><span class="o">(</span><span class="n">Bitmap</span> <span class="n">image</span><span class="o">,</span> <span class="kt">int</span> <span class="n">x</span><span class="o">,</span> <span class="kt">int</span> <span class="n">y</span><span class="o">,</span> <span class="n">Paint</span> <span class="n">p</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<p>を用いて、座標を指定します。<br />
+以下は、サンプルです。</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">Bitmap</span> <span class="n">bmp</span> <span class="o">=</span> <span class="n">BitmapFactory</span><span class="o">.</span><span class="na">decodeResource</span><span class="o">(</span><span class="n">getResources</span><span class="o">(),</span> <span class="n">R</span><span class="o">.</span><span class="na">drawable</span><span class="o">.</span><span class="na">ic_launcher</span><span class="o">);</span>
+<span class="n">canvas</span><span class="o">.</span><span class="na">drawBitmap</span><span class="o">(</span><span class="n">bmp</span><span class="o">,</span> <span class="mi">100</span><span class="o">,</span> <span class="mi">100</span><span class="o">,</span> <span class="n">mPaint</span><span class="o">);</span>
+<span class="n">canvas</span><span class="o">.</span><span class="na">drawBitmap</span><span class="o">(</span><span class="n">bmp</span><span class="o">,</span> <span class="mi">150</span><span class="o">,</span> <span class="mi">150</span><span class="o">,</span> <span class="n">mPaint</span><span class="o">);</span>
+</code></pre>
+</div>
+
+<p>指定した座業に画像が表示されます。</p>
+
+<p><img src="/smjro.github.io/img/reversi/ic_launcher.png" width="200px" /></p>
+
+<h5 id="section-3">画像のリサイズ</h5>
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">Bitmap</span> <span class="nf">createScaledBitmap</span> <span class="o">(</span><span class="n">Bitmap</span> <span class="n">src</span><span class="o">,</span> 
+                <span class="kt">int</span> <span class="n">dstWidth</span><span class="o">,</span> 
+                <span class="kt">int</span> <span class="n">dstHeight</span><span class="o">,</span> 
+                <span class="kt">boolean</span> <span class="n">filter</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<p>filter部分をtrueにすることでアンチエイリアスが、<br />
+かかるみたいです。（画像のギザギザを抑える）</p>
+
+<p>以下、サンプルです。</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">bmp1</span> <span class="o">=</span><span class="n">Bitmap</span><span class="o">.</span><span class="na">createScaledBitmap</span><span class="o">(</span><span class="n">bmp</span><span class="o">,</span> <span class="mi">100</span><span class="o">,</span> <span class="mi">100</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span>
+</code></pre>
+</div>
+
+<p>本アプリでは、背景や盤面、石をBitmapで用意し、<br />
+盤面上の罫線や点をCanvasを用いて描画しました。</p>
+
+<p>参照</p>
+
+<p><a href="https://tech.recruit-mp.co.jp/mobile/remember_canvas1/">AndroidのCanvasを使いこなす！ – 基本的な描画 – NET BIZ DIV. TECH BLOG</a></p>
+
+<h4 id="canvas">Canvas</h4>
+<hr />
+<p>次に盤面の罫線の描画の仕方について説明します。<br />
+罫線の描画にはandroid.graphicsパッケージのCanvasクラスを使用します。</p>
+
+<blockquote>
+  <p>Canvasは、AndroidのAPI Level 1の頃からあるとても古いAPIです。
+Canvasを使うと画面に単純な図形や文字を描画できます。</p>
+</blockquote>
+
+<p>以上のように、Canvasを使用することで罫線を容易に引くことができます。<br />
+Canvas.drawLine()で直線を描画できます。</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">drawLine</span> <span class="o">(</span><span class="kt">float</span> <span class="n">startX</span><span class="o">,</span> 
+                <span class="kt">float</span> <span class="n">startY</span><span class="o">,</span> 
+                <span class="kt">float</span> <span class="n">stopX</span><span class="o">,</span> 
+                <span class="kt">float</span> <span class="n">stopY</span><span class="o">,</span> 
+                <span class="n">Paint</span> <span class="n">paint</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<p>参照</p>
+
+<p><a href="https://tech.recruit-mp.co.jp/mobile/remember_canvas1/">AndroidのCanvasを使いこなす！ – 基本的な描画 – NET BIZ DIV. TECH BLOG</a></p>
+
+<h4 id="section-4">おわりに</h4>
+<hr />
+<p>これでトップにあった盤面の画像レベルで描画ができるようになります。<br />
+(ほとんどBitmapですが。笑)<br />
+次回は設定画面の作り方辺りを説明していこうと思います。
+では、今日はこれまで。</p>
+
+<h4 id="section-5">参照</h4>
+<hr />
+<p><a href="http://www.javadrive.jp/android/activity/index2.html">アクティビティのライフサイクル - Android入門</a><br />
+<a href="http://www.javadrive.jp/android/activity/index4.html">ビューとビューグループ - Android入門</a><br />
+<a href="https://allabout.co.jp/gm/gc/80740/">グラフィックを描こう！</a><br />
+<a href="https://tech.recruit-mp.co.jp/mobile/remember_canvas1/">AndroidのCanvasを使いこなす！ – 基本的な描画 – NET BIZ DIV. TECH BLOG</a></p>
+
+
+</div>
+
+<!-- Disqus -->
+<div id="disqus_thread"></div>
+<script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = '//https-smjro-github-io.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+                                
+
+    </div>
+</main>
+<footer class="page-footer teal grey darken-4">
+  <div class="container">
+    <div class="row">
+      <div class="col l6 s12">
+        <h5 class="white-text">smjroの備忘録</h5>
+        <p class="grey-text text-lighten-4">新米社会人の技術的備忘録。</p>
+      </div>
+      <div class="col l4 offset-l2 s12">
+        <h5 class="white-text">Links</h5>
+        <ul>
+          <li><a class="grey-text text-lighten-3" href="https://github.com/smjro">Github</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer-copyright">
+    <div class="container">
+      © 2016 Smjro
+      <a class="grey-text text-lighten-4 right" href="#!">More Links</a>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/js/materialize.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery_lazyload/1.9.7/jquery.lazyload.min.js" defer></script>
+<script src="/smjro.github.io/js/load.js" defer></script>
+
+<script src="/smjro.github.io/js/prism.js"></script>
+
+</body>
+</html>

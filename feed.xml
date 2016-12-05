@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xml" href="http://localhost:4000/smjro.github.io/feed.xslt.xml"?><feed xmlns="http://www.w3.org/2005/Atom"><generator uri="http://jekyllrb.com" version="3.3.0">Jekyll</generator><link href="http://localhost:4000/smjro.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/smjro.github.io/" rel="alternate" type="text/html" /><updated>2016-12-05T22:47:55+09:00</updated><id>http://localhost:4000/smjro.github.io//</id><title type="html">smjroの備忘録</title><subtitle>description</subtitle><entry><title type="html">Androidでオセロゲームを作ってみる（描画編）</title><link href="http://localhost:4000/smjro.github.io/programming/2016/12/05/Android%E3%81%A7%E3%82%AA%E3%82%BB%E3%83%AD%E3%82%B2%E3%83%BC%E3%83%A0%E3%82%92%E4%BD%9C%E3%81%A3%E3%81%A6%E3%81%BF%E3%82%8B.html" rel="alternate" type="text/html" title="Androidでオセロゲームを作ってみる（描画編）" /><published>2016-12-05T00:00:00+09:00</published><updated>2016-12-05T00:00:00+09:00</updated><id>http://localhost:4000/smjro.github.io/programming/2016/12/05/Android%E3%81%A7%E3%82%AA%E3%82%BB%E3%83%AD%E3%82%B2%E3%83%BC%E3%83%A0%E3%82%92%E4%BD%9C%E3%81%A3%E3%81%A6%E3%81%BF%E3%82%8B</id><content type="html" xml:base="http://localhost:4000/smjro.github.io/programming/2016/12/05/Android%E3%81%A7%E3%82%AA%E3%82%BB%E3%83%AD%E3%82%B2%E3%83%BC%E3%83%A0%E3%82%92%E4%BD%9C%E3%81%A3%E3%81%A6%E3%81%BF%E3%82%8B.html">&lt;p&gt;Androidアプリ（オセロ）の作成を通して、javaの勉強をしていきます。&lt;/p&gt;
+
+&lt;p&gt;第一回目は描画編ということで、次の様な描画の仕方を説明します。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/smjro.github.io/img/reversi/reversi_view.png&quot; width=&quot;200px&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;section&quot;&gt;目次&lt;/h4&gt;
+&lt;hr /&gt;
+&lt;ul&gt;
+  &lt;li&gt;● &lt;a href=&quot;#section&quot;&gt;目次&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;● &lt;a href=&quot;#section-1&quot;&gt;はじめに&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;● &lt;a href=&quot;#activity&quot;&gt;Activityのライフサイクル&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;● &lt;a href=&quot;#ondraw&quot;&gt;onDraw&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;● &lt;a href=&quot;#section-2&quot;&gt;画像の読み込み&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;● &lt;a href=&quot;#canvas&quot;&gt;Canvas&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;● &lt;a href=&quot;#section-3&quot;&gt;おわりに&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;● &lt;a href=&quot;#section-4&quot;&gt;参照&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;section-1&quot;&gt;はじめに&lt;/h4&gt;
+&lt;hr /&gt;
+&lt;p&gt;描画処理について説明する前に、Androidのアプリの仕組みについて簡単に説明します。&lt;br /&gt;
+詳細は割愛しますので、下記のサイト等を参考にしてください。&lt;br /&gt;
+また、記事中のソースコードは説明用に不必要な部分を取り除いた形
+になっているので詳しくは&lt;a href=&quot;https://github.com/smjro/Reversi&quot;&gt;Github&lt;/a&gt;を確認してください。&lt;/p&gt;
+
+&lt;h4 id=&quot;activity&quot;&gt;Activityのライフサイクル&lt;/h4&gt;
+&lt;hr /&gt;
+&lt;p&gt;Androidでは、アプリケーションが起動されると最初のActivityが開始し、画面に表示されます。&lt;br /&gt;
+Activity（画面）は別のActivityによって隠されたることもあります。&lt;br /&gt;
+（ゲーム中に電話が掛かってきたりだとか）&lt;br /&gt;
+このようなActivityの開始から破棄されるまでの一連の流れを&lt;br /&gt;
+Activityのライフサイクルと呼んでいます。&lt;/p&gt;
+
+&lt;p&gt;次の図はライフサイクルを表したものです。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/smjro.github.io/img/reversi/life_cycle.jpg&quot; width=&quot;400px&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;参考&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://www.javadrive.jp/android/activity/index2.html&quot;&gt;アクティビティのライフサイクル - Android入門&lt;/a&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;ondraw&quot;&gt;onDraw()&lt;/h4&gt;
+&lt;hr /&gt;
+&lt;p&gt;描画処理はアプリ起動後すぐに行いたいので、図中の&lt;code class=&quot;highlighter-rouge&quot;&gt;onCreate()&lt;/code&gt;  内部で行います。&lt;br /&gt;
+以下、ビューとViewが出てきますが、&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;● ビュー：画面に表示されるテキストやボタン&lt;/li&gt;
+  &lt;li&gt;● View：Viewクラス&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;をそれぞれ表していることに注意してください。&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// MainActivity.java&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;protected&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;onCreate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Bundle&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;savedInstanceState&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+	&lt;span class=&quot;kd&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;onCreate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;savedInstanceState&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+	&lt;span class=&quot;n&quot;&gt;mReversiView&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ReversiView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+	&lt;span class=&quot;c1&quot;&gt;// 内部クラス（カスタムビュー）を&lt;/span&gt;
+	&lt;span class=&quot;c1&quot;&gt;// レイアウトとして設定する&lt;/span&gt;
+	&lt;span class=&quot;n&quot;&gt;setContentView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;mReversiView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;code class=&quot;red-text&quot;&gt;setContentView()&lt;/code&gt;にレイアウトファイルを読み込むことで描画できます。&lt;br /&gt;
+デフォルトでは&lt;code class=&quot;red-text&quot;&gt;setContentView(R.layout.main)&lt;/code&gt;となっており、&lt;br /&gt;
+res/layout/main.xmlで定義されたビューを読み込むようになっています。&lt;br /&gt;
+今回は、Viewクラスのサブクラスを内部クラス（ReversiView）として作成し、読み込ませています。&lt;br /&gt;
+描画の詳細な処理は&lt;code class=&quot;red-text&quot;&gt;ReversiView.java&lt;/code&gt;内部の&lt;code class=&quot;red-text&quot;&gt;onDraw()&lt;/code&gt;で記述しています。&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// ReversiView.java&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ReversiView&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;View&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+	&lt;span class=&quot;c1&quot;&gt;// コンストラクタ&lt;/span&gt;
+	&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;ReversiView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Context&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+		&lt;span class=&quot;kd&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+		&lt;span class=&quot;cm&quot;&gt;/*** 初期化処理 ***/&lt;/span&gt;
+	&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+	&lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
+	&lt;span class=&quot;kd&quot;&gt;protected&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;onDraw&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Canvas&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;canvas&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+		&lt;span class=&quot;cm&quot;&gt;/*** 描画処理 ***/&lt;/span&gt;
+	&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;参考&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://www.javadrive.jp/android/activity/index4.html&quot;&gt;ビューとビューグループ - Android入門&lt;/a&gt;&lt;br /&gt;
+&lt;a href=&quot;https://allabout.co.jp/gm/gc/80740/&quot;&gt;グラフィックを描こう！&lt;/a&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;section-2&quot;&gt;画像の読み込み&lt;/h4&gt;
+&lt;hr /&gt;
+&lt;p&gt;画像（Bitmap）を描画するには、描画する画像と座標を指定します。&lt;br /&gt;
+画像リソースの読み込みは、&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;Bitmap&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BitmapFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;decodeResource&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Resources&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;resourcesID&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;を用います。
+尚、読み込む画像は&lt;code class=&quot;red-text&quot;&gt;res/drawable&lt;/code&gt;ディレクトリに置いてください。&lt;br /&gt;
+次に、読み込んだ画像の描画は、&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;drawBitmap&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Bitmap&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Paint&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;を用いて、座標を指定します。&lt;br /&gt;
+以下は、サンプルです。&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;Bitmap&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bmp&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BitmapFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;decodeResource&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;getResources&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;R&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;drawable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;ic_launcher&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;canvas&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;drawBitmap&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bmp&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mPaint&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;canvas&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;drawBitmap&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bmp&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;150&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;150&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mPaint&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;指定した座業に画像が表示されます。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/smjro.github.io/img/reversi/ic_launcher.png&quot; width=&quot;200px&quot; /&gt;&lt;/p&gt;
+
+&lt;h5 id=&quot;section-3&quot;&gt;画像のリサイズ&lt;/h5&gt;
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;Bitmap&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;createScaledBitmap&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Bitmap&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;src&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; 
+                &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dstWidth&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; 
+                &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dstHeight&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; 
+                &lt;span class=&quot;kt&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;filter&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;filter部分をtrueにすることでアンチエイリアスが、&lt;br /&gt;
+かかるみたいです。（画像のギザギザを抑える）&lt;/p&gt;
+
+&lt;p&gt;以下、サンプルです。&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;bmp1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Bitmap&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;createScaledBitmap&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bmp&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;本アプリでは、背景や盤面、石をBitmapで用意し、&lt;br /&gt;
+盤面上の罫線や点をCanvasを用いて描画しました。&lt;/p&gt;
+
+&lt;p&gt;参照&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://tech.recruit-mp.co.jp/mobile/remember_canvas1/&quot;&gt;AndroidのCanvasを使いこなす！ – 基本的な描画 – NET BIZ DIV. TECH BLOG&lt;/a&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;canvas&quot;&gt;Canvas&lt;/h4&gt;
+&lt;hr /&gt;
+&lt;p&gt;次に盤面の罫線の描画の仕方について説明します。&lt;br /&gt;
+罫線の描画にはandroid.graphicsパッケージのCanvasクラスを使用します。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Canvasは、AndroidのAPI Level 1の頃からあるとても古いAPIです。
+Canvasを使うと画面に単純な図形や文字を描画できます。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;以上のように、Canvasを使用することで罫線を容易に引くことができます。&lt;br /&gt;
+Canvas.drawLine()で直線を描画できます。&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;drawLine&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;float&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;startX&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; 
+                &lt;span class=&quot;kt&quot;&gt;float&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;startY&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; 
+                &lt;span class=&quot;kt&quot;&gt;float&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;stopX&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; 
+                &lt;span class=&quot;kt&quot;&gt;float&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;stopY&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; 
+                &lt;span class=&quot;n&quot;&gt;Paint&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;paint&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;参照&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://tech.recruit-mp.co.jp/mobile/remember_canvas1/&quot;&gt;AndroidのCanvasを使いこなす！ – 基本的な描画 – NET BIZ DIV. TECH BLOG&lt;/a&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;section-4&quot;&gt;おわりに&lt;/h4&gt;
+&lt;hr /&gt;
+&lt;p&gt;これでトップにあった盤面の画像レベルで描画ができるようになります。&lt;br /&gt;
+(ほとんどBitmapですが。笑)&lt;br /&gt;
+次回は設定画面の作り方辺りを説明していこうと思います。
+では、今日はこれまで。&lt;/p&gt;
+
+&lt;h4 id=&quot;section-5&quot;&gt;参照&lt;/h4&gt;
+&lt;hr /&gt;
+&lt;p&gt;&lt;a href=&quot;http://www.javadrive.jp/android/activity/index2.html&quot;&gt;アクティビティのライフサイクル - Android入門&lt;/a&gt;&lt;br /&gt;
+&lt;a href=&quot;http://www.javadrive.jp/android/activity/index4.html&quot;&gt;ビューとビューグループ - Android入門&lt;/a&gt;&lt;br /&gt;
+&lt;a href=&quot;https://allabout.co.jp/gm/gc/80740/&quot;&gt;グラフィックを描こう！&lt;/a&gt;&lt;br /&gt;
+&lt;a href=&quot;https://tech.recruit-mp.co.jp/mobile/remember_canvas1/&quot;&gt;AndroidのCanvasを使いこなす！ – 基本的な描画 – NET BIZ DIV. TECH BLOG&lt;/a&gt;&lt;/p&gt;</content><category term="android" /><category term="java" /><summary type="html">Androidアプリ（オセロ）の作成を通して、javaの勉強をしていきます。</summary></entry><entry><title type="html">はじめての投稿</title><link href="http://localhost:4000/smjro.github.io/text/2016/11/21/%E3%81%AF%E3%81%98%E3%82%81%E3%81%A6%E3%81%AE%E6%8A%95%E7%A8%BF.html" rel="alternate" type="text/html" title="はじめての投稿" /><published>2016-11-21T00:00:00+09:00</published><updated>2016-11-21T00:00:00+09:00</updated><id>http://localhost:4000/smjro.github.io/text/2016/11/21/%E3%81%AF%E3%81%98%E3%82%81%E3%81%A6%E3%81%AE%E6%8A%95%E7%A8%BF</id><content type="html" xml:base="http://localhost:4000/smjro.github.io/text/2016/11/21/%E3%81%AF%E3%81%98%E3%82%81%E3%81%A6%E3%81%AE%E6%8A%95%E7%A8%BF.html">&lt;p&gt;はじめまして、smjroです。&lt;/p&gt;
+
+&lt;p&gt;いやー、苦労しました。&lt;br /&gt;
+簡単にblogが投稿できるとのことで&lt;br /&gt;
+Github Pagesに手をだしたのですが、&lt;br /&gt;
+意外と手こずってしまい初投稿まで&lt;br /&gt;
+一週間ほど費やしてしましました。汗&lt;/p&gt;
+
+&lt;p&gt;さて、本Blogの目的ですが、&lt;br /&gt;
+主にGithub上で&lt;/p&gt;
+
+&lt;p&gt;● 説明がしにくい&lt;br /&gt;
+● READMEが長くなりそう&lt;/p&gt;
+
+&lt;p&gt;といった場合の備忘録代わりとして、&lt;br /&gt;
+活用していこうと考えています。&lt;br /&gt;
+また折角環境も構築できたことですし、&lt;br /&gt;
+それ以外のことも記事にしていければと思います。&lt;/p&gt;
+
+&lt;p&gt;拙い文章で大変恐縮ですが、&lt;br /&gt;
+少しずつ慣れていこうと思います。&lt;br /&gt;
+それと、アドバイス等を頂けると嬉しいです。&lt;br /&gt;
+上記でお察しのとおり、色々と疎いところがありますので&lt;br /&gt;
+皆さんのフォローを期待しています。笑&lt;/p&gt;
+
+&lt;p&gt;では、今回はこれまで。&lt;/p&gt;</content><summary type="html">はじめまして、smjroです。</summary></entry><entry><title type="html">Lorem Ipsum</title><link href="http://localhost:4000/smjro.github.io/text/2016/11/01/Lorem-Ipsum.html" rel="alternate" type="text/html" title="Lorem Ipsum" /><published>2016-11-01T00:00:00+09:00</published><updated>2016-11-01T00:00:00+09:00</updated><id>http://localhost:4000/smjro.github.io/text/2016/11/01/Lorem-Ipsum</id><content type="html" xml:base="http://localhost:4000/smjro.github.io/text/2016/11/01/Lorem-Ipsum.html">&lt;p&gt;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam commodo, eros eu efficitur tempus, sem arcu vehicula tortor, sed auctor ligula tellus ut tortor. Aenean a dui felis. Aenean vestibulum dapibus neque sit amet interdum. Sed pellentesque leo ex, et sollicitudin mi fermentum a. Curabitur ut dapibus risus, non pretium tortor. Curabitur non ex posuere, blandit arcu nec, ultricies nunc. Donec vitae mollis mi, vestibulum vestibulum elit. Pellentesque tortor ante, pellentesque in iaculis nec, accumsan in turpis. Donec a tincidunt ante, commodo malesuada felis. Ut tincidunt luctus risus, nec efficitur nibh porttitor eget. Morbi lectus erat, iaculis non rhoncus tincidunt, lobortis vel quam. Ut leo massa, condimentum id sodales sed, imperdiet in mi. Nullam a eleifend neque. Nulla euismod molestie sem, aliquam varius lorem volutpat ac.&lt;/p&gt;
+
+&lt;p&gt;Integer sed est tellus. Duis pulvinar lorem et lorem laoreet ultricies. Duis eu sapien rhoncus, faucibus neque at, mattis augue. Pellentesque viverra augue eros, sit amet rhoncus urna convallis ut. Praesent molestie risus et est auctor, eu rutrum felis dapibus. Pellentesque venenatis, est quis mattis vulputate, felis dolor finibus orci, a mattis velit libero in diam. Quisque ante leo, facilisis eget ante in, sodales malesuada eros. Vestibulum posuere tellus a eros euismod, non tincidunt purus convallis.&lt;/p&gt;
+
+&lt;p&gt;Pellentesque vel luctus diam, sed hendrerit tortor. Nunc faucibus sed sem pretium rutrum. Nullam ipsum leo, vulputate elementum libero in, pharetra egestas tellus. Praesent magna nibh, finibus at ipsum a, scelerisque pharetra libero. Nullam suscipit elit suscipit, aliquam justo fermentum, semper diam. Phasellus vel diam posuere, vestibulum odio in, efficitur sapien. Vivamus finibus ullamcorper elementum. Cras lectus nulla, tempus pulvinar ligula porta, tempus auctor ex. Etiam metus ex, mollis a sollicitudin a, maximus non leo. Nulla vel dui metus. Duis interdum lorem ac rhoncus dapibus. Fusce suscipit interdum lorem efficitur mattis. Nunc lacus dui, egestas eu vehicula eu, ornare a neque. Phasellus eleifend turpis vitae porttitor rutrum.&lt;/p&gt;
+
+&lt;p&gt;In hac habitasse platea dictumst. Aliquam velit magna, imperdiet vel euismod nec, mollis at lectus. Morbi ac quam sit amet nunc ultrices fringilla. Maecenas ornare ligula ut justo facilisis tristique. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Praesent a nunc ut nulla condimentum aliquet. Aenean mattis arcu non dolor pretium, nec gravida augue rutrum. Sed congue eros non urna vestibulum, a eleifend dui tristique. In varius nisl mi. Fusce cursus dignissim porttitor. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.&lt;/p&gt;
+
+&lt;p&gt;Sed id lorem nec lorem dapibus ultrices. In tincidunt malesuada dictum. Vivamus id viverra urna. Nunc cursus vulputate gravida. Integer mi eros, tincidunt eu enim quis, venenatis tristique quam. Cras faucibus accumsan laoreet. Duis lacinia risus vitae urna tincidunt tristique. Nullam eu metus et magna aliquet interdum sit amet nec augue. Fusce vel mollis massa, ac sollicitudin eros. Aenean ut nunc et mauris scelerisque maximus. Suspendisse euismod imperdiet ipsum, vel sagittis nisi elementum eu. Ut vehicula nisi et nulla malesuada, sit amet ullamcorper turpis malesuada. Pellentesque vestibulum sodales venenatis. Pellentesque at elit sed urna dapibus hendrerit. Aenean turpis nisl, bibendum in magna id, porttitor auctor dui. Donec at aliquam nisi.&lt;/p&gt;</content><category term="Random" /><summary type="html">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam commodo, eros eu efficitur tempus, sem arcu vehicula tortor, sed auctor ligula tellus ut tortor. Aenean a dui felis. Aenean vestibulum dapibus neque sit amet interdum. Sed pellentesque leo ex, et sollicitudin mi fermentum a. Curabitur ut dapibus risus, non pretium tortor. Curabitur non ex posuere, blandit arcu nec, ultricies nunc. Donec vitae mollis mi, vestibulum vestibulum elit. Pellentesque tortor ante, pellentesque in iaculis nec, accumsan in turpis. Donec a tincidunt ante, commodo malesuada felis. Ut tincidunt luctus risus, nec efficitur nibh porttitor eget. Morbi lectus erat, iaculis non rhoncus tincidunt, lobortis vel quam. Ut leo massa, condimentum id sodales sed, imperdiet in mi. Nullam a eleifend neque. Nulla euismod molestie sem, aliquam varius lorem volutpat ac.</summary></entry><entry><title type="html">Welcome to Jekyll!</title><link href="http://localhost:4000/smjro.github.io/jekyll%20update/2016/10/27/welcome-to-jekyll.html" rel="alternate" type="text/html" title="Welcome to Jekyll!" /><published>2016-10-27T00:00:00+09:00</published><updated>2016-10-27T00:00:00+09:00</updated><id>http://localhost:4000/smjro.github.io/jekyll%20update/2016/10/27/welcome-to-jekyll</id><content type="html" xml:base="http://localhost:4000/smjro.github.io/jekyll%20update/2016/10/27/welcome-to-jekyll.html">&lt;p&gt;You’ll find this post in your &lt;code class=&quot;highlighter-rouge&quot;&gt;_posts&lt;/code&gt; directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run &lt;code class=&quot;highlighter-rouge&quot;&gt;jekyll serve&lt;/code&gt;, which launches a web server and auto-regenerates your site when a file is updated.&lt;/p&gt;
+
+&lt;p&gt;To add new posts, simply add a file in the &lt;code class=&quot;highlighter-rouge&quot;&gt;_posts&lt;/code&gt; directory that follows the convention &lt;code class=&quot;highlighter-rouge&quot;&gt;YYYY-MM-DD-name-of-post.ext&lt;/code&gt; and includes the necessary front matter. Take a look at the source for this post to get an idea about how it works.&lt;/p&gt;
+
+&lt;p&gt;Jekyll also offers powerful support for code snippets:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;print_hi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;Hi, &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;print_hi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'Tom'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#=&amp;gt; prints 'Hi, Tom' to STDOUT.&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Check out the &lt;a href=&quot;http://jekyllrb.com/docs/home&quot;&gt;Jekyll docs&lt;/a&gt; for more info on how to get the most out of Jekyll. File all bugs/feature requests at &lt;a href=&quot;https://github.com/jekyll/jekyll&quot;&gt;Jekyll’s GitHub repo&lt;/a&gt;. If you have questions, you can ask them on &lt;a href=&quot;https://talk.jekyllrb.com/&quot;&gt;Jekyll Talk&lt;/a&gt;.&lt;/p&gt;</content><category term="ewuriower" /><category term="sticky" /><summary type="html">You’ll find this post in your _posts directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run jekyll serve, which launches a web server and auto-regenerates your site when a file is updated.</summary></entry></feed>
