@@ -2,16 +2,18 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content=""/>
+    <meta name="keywords" content="python, numpy"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="/smjro.github.io/favicon.png">
-    <title>はじめての投稿</title>
-    <meta name="description" content="はじめまして、smjroです。">
-    <link rel="canonical" href="http://localhost:4000/smjro.github.io/text/2016/11/21/%E3%81%AF%E3%81%98%E3%82%81%E3%81%A6%E3%81%AE%E6%8A%95%E7%A8%BF.html" />
+    <title>numpy配列の型変換</title>
+    <meta name="description" content="pythonを使用しているとnumpyを用いることが多いと思いますが、numpyでの型の変換の仕方を知らなかったので、ここに残しでおきます。">
+    <link rel="canonical" href="http://localhost:4000/smjro.github.io/programming/2017/01/29/numpy%E9%85%8D%E5%88%97%E3%81%AE%E5%9E%8B%E5%A4%89%E6%8F%9B.html" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/material-design-icons/3.0.1/iconfont/material-icons.min.css" rel="stylesheet"/>
     <!-- <link href="/smjro.github.io/stylesheets/materialize.min.css" rel="stylesheet"/> -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/css/materialize.min.css" rel="stylesheet"  />
     <link rel="stylesheet" href="/smjro.github.io/css/main.css">
+    
+    <link rel="stylesheet" href="/smjro.github.io/css/prism.css">
     
     <link rel="alternate" type="application/rss+xml" title="smjroの備忘録" href="/smjro.github.io/feed.xml" />
 </head>
@@ -49,43 +51,43 @@
     <div class="container">
         <!--  -->
 <div class="row">
-  <h2>はじめての投稿</h2>
+  <h2>numpy配列の型変換</h2>
   <div class="valign-wrapper">
     <!-- <div class="author"><img src="/smjro.github.io/img/author.png" class="circle responsive-img">
     </div> -->
     
-    <h5><a href="/smjro.github.io/categories/Text">Text</a> - 11/21/2016
+    <h5><a href="/smjro.github.io/categories/programming">programming</a> - 01/29/2017
     </h5>
   </div>
   
+  
+  <a href="/smjro.github.io/tags/python"><div class="chip waves-effect waves-red">python</div></a>
+  
+  
+  
+  <a href="/smjro.github.io/tags/numpy"><div class="chip waves-effect waves-red">numpy</div></a>
+  
+  
 </div>
 <div class="row">
-  <p>はじめまして、smjroです。</p>
+  <p>pythonを使用しているとnumpyを用いることが多いと思いますが、
+numpyでの型の変換の仕方を知らなかったので、ここに残しでおきます。</p>
 
-<p>いやー、苦労しました。<br />
-簡単にblogが投稿できるとのことで<br />
-Github Pagesに手をだしたのですが、<br />
-意外と手こずってしまい初投稿まで<br />
-一週間ほど費やしてしましました。汗</p>
+<h4 id="section">型の変換</h4>
+<hr />
+<p>numpyの多次元配列（ndarray）の型（dtype）を変更するには<code class="red-text">astype</code>を使います。</p>
 
-<p>さて、本Blogの目的ですが、<br />
-主にGithub上で</p>
-
-<p>● 説明がしにくい<br />
-● READMEが長くなりそう</p>
-
-<p>といった場合の備忘録代わりとして、<br />
-活用していこうと考えています。<br />
-また折角環境も構築できたことですし、<br />
-それ以外のことも記事にしていければと思います。</p>
-
-<p>拙い文章で大変恐縮ですが、<br />
-少しずつ慣れていこうと思います。<br />
-それと、アドバイス等を頂けると嬉しいです。<br />
-上記でお察しのとおり、色々と疎いところがありますので<br />
-皆さんのフォローを期待しています。笑</p>
-
-<p>では、今回はこれまで。</p>
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">x</span><span class="o">.</span><span class="n">dtype</span>
+<span class="n">dtype</span><span class="p">(</span><span class="s">'float64'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">int_x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="nb">int</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">int_x</span><span class="o">.</span><span class="n">dtype</span>
+<span class="n">dtype</span><span class="p">(</span><span class="s">'int64'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">int_x</span>
+<span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">2</span><span class="p">])</span>
+</code></pre>
+</div>
 
 </div>
 
@@ -142,6 +144,8 @@ s.setAttribute('data-timestamp', +new Date());
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery_lazyload/1.9.7/jquery.lazyload.min.js" defer></script>
 <script src="/smjro.github.io/js/load.js" defer></script>
 <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+<script src="/smjro.github.io/js/prism.js"></script>
 
 
 </body>
